@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
-set(PROJECT_VESRION 0.0.${PATCH_VERSION})
+set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
-project(helloworld VERSION ${PROJECT_VESRION})
+project(helloworld VERSION ${PROJECT_VERSION})
 
 option(WITH_BOOST_TEST "Whether to build Boost test" ON)
+option(WITH_GTEST "Whether to build Google test" OFF)
 
 configure_file(version.h.in version.h)
 
@@ -45,6 +46,21 @@ if(WITH_BOOST_TEST)
     )
 endif()
 
+if(WITH_GTEST)
+    find_package(GTest  REQUIRED)
+    add_executable(test_versiong test_versiong.cpp)
+
+    set_target_properties(test_versiong PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED ON
+    )
+
+    target_link_libraries(test_versiong
+        gtest
+        helloworld
+    )
+endif()
+
 if (MSVC)
     target_compile_options(helloworld_cli PRIVATE
         /W4
@@ -57,6 +73,11 @@ if (MSVC)
             /W4
         )
     endif()
+    if(WITH_GTEST)
+        target_compile_options(test_versiong PRIVATE
+            /W4
+        )
+    endif()
 else ()
     target_compile_options(helloworld_cli PRIVATE
         -Wall -Wextra -pedantic -Werror
@@ -66,6 +87,11 @@ else ()
     )
     if(WITH_BOOST_TEST)
         target_compile_options(test_version PRIVATE
+            -Wall -Wextra -pedantic -Werror
+        )
+    endif()
+    if(WITH_GTEST)
+        target_compile_options(test_versiong PRIVATE
             -Wall -Wextra -pedantic -Werror
         )
     endif()
@@ -83,4 +109,10 @@ include(CPack)
 if(WITH_BOOST_TEST)
     enable_testing()
     add_test(test_version test_version)
+endif()
+
+if(WITH_GTEST)
+    enable_testing()
+    add_test(test_versiong test_versiong)
+
 endif()
