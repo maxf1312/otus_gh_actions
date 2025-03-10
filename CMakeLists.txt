@@ -27,6 +27,11 @@ target_link_libraries(helloworld_cli PRIVATE
 )
 
 if(WITH_BOOST_TEST)
+    
+    #if(WIN32)
+        set (BOOST_ROOT "C:/local/boost_1_87_0/") # Путь к библиотеке Boost
+    #endif()
+
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
     add_executable(test_version test_version.cpp)
 
